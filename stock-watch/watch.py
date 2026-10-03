@@ -22,7 +22,7 @@ def page_products(page, url):
     """返回页面上所有商品 [(名称, 链接)]。"""
     page.goto(url, wait_until="domcontentloaded", timeout=60000)
     try:
-        page.wait_for_selector("a[href*='.product.'], a[href*='/p/-/']", timeout=30000)
+        page.wait_for_selector("a[href*='.product.']", timeout=30000)
     except Exception:
         pass
     page.wait_for_timeout(3000)
