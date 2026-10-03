@@ -1,14 +1,17 @@
 {
-  "news_query": "\"Switch 2\" Zelda edition bundle",
-  "news_must_include": ["zelda", "switch 2"],
-  "news_any_of": ["edition", "bundle", "limited", "preorder", "pre-order", "限定"],
   "products": [
     {
-      "name": "Nintendo 官网 - Switch 2 主机列表",
-      "url": "https://www.nintendo.com/us/store/hardware/",
+      "name": "Costco - Switch 2 塞尔达限定机（搜索页）",
+      "url": "https://www.costco.com/CatalogSearch?dept=All&keyword=nintendo+switch+2+zelda",
       "match_text": "Zelda",
-      "in_stock_words": ["Add to cart", "Pre-order now"],
-      "out_of_stock_words": ["Sold out", "Out of stock", "Coming soon", "Not available"]
+      "in_stock_words": [
+        "Add to Cart"
+      ],
+      "out_of_stock_words": [
+        "Out of Stock",
+        "Sold Out",
+        "Coming Soon"
+      ]
     }
   ]
 }

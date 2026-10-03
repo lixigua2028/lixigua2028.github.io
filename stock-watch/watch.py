@@ -1,4 +1,4 @@
-"""Switch 2 塞尔达限定机监控：查新闻 + 查商品页，有新消息就开 issue 通知。"""
+"""Switch 2 塞尔达限定机监控：查 Costco 商品页，有货就开 issue 通知。"""
 import json
 import os
 import re
@@ -74,17 +74,20 @@ def main():
     state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"seen_news": [], "stock": {}}
     alerts = []
 
-    try:
-        for nid, title, link in news_items(cfg):
-            if nid not in state["seen_news"]:
-                state["seen_news"].append(nid)
-                alerts.append(f"[新闻] {title}\n{link}")
-    except Exception as e:
-        print(f"新闻检查失败：{e}", file=sys.stderr)
+    if cfg.get("news_query"):
+        try:
+            for nid, title, link in news_items(cfg):
+                if nid not in state["seen_news"]:
+                    state["seen_news"].append(nid)
+                    alerts.append(f"[新闻] {title}\n{link}")
+        except Exception as e:
+            print(f"新闻检查失败：{e}", file=sys.stderr)
 
     for p in cfg["products"]:
         try:
-            status = stock_status(p, fetch(p["url"]))
+            html = fetch(p["url"])
+            print(f"{p['name']}: 拿到页面 {len(html)} 字节")
+            status = stock_status(p, html)
         except Exception as e:
             print(f"{p['name']} 检查失败：{e}", file=sys.stderr)
             continue
