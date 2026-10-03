@@ -40,9 +40,11 @@ def stock_status(product, html):
     text = re.sub(r"<[^>]+>", " ", html)
     text = re.sub(r"\s+", " ", text)
     low = text.lower()
+    links = set(re.findall(r"[\w-]+\.product\.\d+\.html", html))
     title = re.search(r"<title>(.*?)</title>", html, re.S)
     print(f"  页面标题：{title.group(1).strip() if title else '无'}；"
-          f"出现 switch {low.count('switch')} 次，nintendo {low.count('nintendo')} 次")
+          f"出现 switch {low.count('switch')} 次，nintendo {low.count('nintendo')} 次，"
+          f"商品链接 {len(links)} 个")
     idx = low.find(product["match_text"].lower())
     if idx < 0:
         return "not_listed"
