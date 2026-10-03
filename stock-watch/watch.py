@@ -1,60 +1,39 @@
-"""Switch 2 塞尔达限定机监控：查 Costco 商品页，有货就开 issue 通知。"""
+"""Costco 上架提醒：用真浏览器打开 Costco 的任天堂分类页，
+发现 Switch 2 塞尔达限定机就在仓库里开 issue 通知。"""
 import json
 import os
-import re
-import sys
-import urllib.parse
 import urllib.request
-import xml.etree.ElementTree as ET
 from pathlib import Path
+
+from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).parent
 STATE_FILE = HERE / "state.json"
-UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/129.0 Safari/537.36")
 
 
-def fetch(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+def matches(name, cfg):
+    low = name.lower()
+    return all(w.lower() in low for w in cfg["must_include"])
 
 
-def news_items(cfg, rss_text=None):
-    """从 Google News RSS 找疑似塞尔达限定机的新闻，返回 [(id, 标题, 链接)]。"""
-    if rss_text is None:
-        q = urllib.parse.quote(cfg["news_query"])
-        rss_text = fetch(f"https://news.google.com/rss/search?q={q}&hl=en-US&gl=US&ceid=US:en")
-    found = []
-    for item in ET.fromstring(rss_text).iter("item"):
-        title = item.findtext("title", "")
-        link = item.findtext("link", "")
-        t = title.lower()
-        if all(w in t for w in cfg["news_must_include"]) and any(w in t for w in cfg["news_any_of"]):
-            found.append((link, title, link))
-    return found
-
-
-def stock_status(product, html):
-    """返回 'in_stock' / 'out_of_stock' / 'not_listed' / 'unknown'。"""
-    text = re.sub(r"<[^>]+>", " ", html)
-    text = re.sub(r"\s+", " ", text)
-    low = text.lower()
-    links = set(re.findall(r"[\w-]+\.product\.\d+\.html", html))
-    title = re.search(r"<title>(.*?)</title>", html, re.S)
-    print(f"  页面标题：{title.group(1).strip() if title else '无'}；"
-          f"出现 switch {low.count('switch')} 次，nintendo {low.count('nintendo')} 次，"
-          f"商品链接 {len(links)} 个")
-    idx = low.find(product["match_text"].lower())
-    if idx < 0:
-        return "not_listed"
-    # 只看商品名附近的一段文字，避免误判页面上别的商品
-    window = low[max(0, idx - 300): idx + 600]
-    if any(w.lower() in window for w in product["out_of_stock_words"]):
-        return "out_of_stock"
-    if any(w.lower() in window for w in product["in_stock_words"]):
-        return "in_stock"
-    return "unknown"
+def page_products(page, url):
+    """返回页面上所有商品 [(名称, 链接)]。"""
+    page.goto(url, wait_until="domcontentloaded", timeout=60000)
+    try:
+        page.wait_for_selector("a[href*='.product.']", timeout=30000)
+    except Exception:
+        pass
+    page.wait_for_timeout(3000)
+    items = page.eval_on_selector_all(
+        "a[href*='.product.']",
+        "els => els.map(e => [e.innerText.trim(), e.href])",
+    )
+    seen, out = set(), []
+    for name, link in items:
+        if name and link not in seen:
+            seen.add(link)
+            out.append((name, link))
+    return out
 
 
 def notify(title, body):
@@ -76,40 +55,37 @@ def notify(title, body):
 
 def main():
     cfg = json.loads((HERE / "config.json").read_text())
-    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {"seen_news": [], "stock": {}}
+    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    notified = set(state.get("notified", []))
     alerts = []
 
-    if cfg.get("news_query"):
-        try:
-            for nid, title, link in news_items(cfg):
-                if nid not in state["seen_news"]:
-                    state["seen_news"].append(nid)
-                    alerts.append(f"[新闻] {title}\n{link}")
-        except Exception as e:
-            print(f"新闻检查失败：{e}", file=sys.stderr)
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(locale="en-US", user_agent=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/129.0 Safari/537.36"))
+        for url in cfg["pages"]:
+            try:
+                products = page_products(page, url)
+            except Exception as e:
+                print(f"{url} 打开失败：{e}")
+                continue
+            print(f"{url}：找到 {len(products)} 个商品")
+            for name, link in products[:5]:
+                print(f"  例：{name.splitlines()[0][:80]}")
+            for name, link in products:
+                if matches(name, cfg) and link not in notified:
+                    notified.add(link)
+                    alerts.append(f"**{name.splitlines()[0]}**\n{link}")
+        browser.close()
 
-    for p in cfg["products"]:
-        try:
-            html = fetch(p["url"])
-            print(f"{p['name']}: 拿到页面 {len(html)} 字节")
-            status = stock_status(p, html)
-        except Exception as e:
-            print(f"{p['name']} 检查失败：{e}", file=sys.stderr)
-            continue
-        print(f"{p['name']}: {status}")
-        old = state["stock"].get(p["url"])
-        if status in ("in_stock", "out_of_stock") and status != old and (old or status == "in_stock"):
-            label = "有货了！快去买" if status == "in_stock" else "已经卖完"
-            alerts.append(f"[{label}] {p['name']}\n{p['url']}")
-        if status != "unknown":
-            state["stock"][p["url"]] = status
-
-    state["seen_news"] = state["seen_news"][-300:]
-    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2))
+    STATE_FILE.write_text(json.dumps({"notified": sorted(notified)}, ensure_ascii=False, indent=2))
     if alerts:
-        notify(f"Switch 2 塞尔达限定机：{len(alerts)} 条新消息", "\n\n".join(alerts) + "\n\n@" + os.environ.get("GITHUB_REPOSITORY_OWNER", ""))
+        owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "")
+        notify("Costco 上架了 Switch 2 塞尔达限定机！",
+               "\n\n".join(alerts) + f"\n\n快去 Costco 看看 @{owner}")
     else:
-        print("没有新消息")
+        print("还没上架")
 
 
 if __name__ == "__main__":

@@ -1,56 +1,8 @@
 {
-  "products": [
-    {
-      "name": "Costco 游戏机分类",
-      "url": "https://www.costco.com/video-game-consoles.html",
-      "match_text": "Zelda",
-      "in_stock_words": [
-        "Add to Cart"
-      ],
-      "out_of_stock_words": [
-        "Out of Stock",
-        "Sold Out",
-        "Coming Soon"
-      ]
-    },
-    {
-      "name": "Costco Nintendo 分类",
-      "url": "https://www.costco.com/nintendo.html",
-      "match_text": "Zelda",
-      "in_stock_words": [
-        "Add to Cart"
-      ],
-      "out_of_stock_words": [
-        "Out of Stock",
-        "Sold Out",
-        "Coming Soon"
-      ]
-    },
-    {
-      "name": "Costco Switch 分类",
-      "url": "https://www.costco.com/nintendo-switch.html",
-      "match_text": "Zelda",
-      "in_stock_words": [
-        "Add to Cart"
-      ],
-      "out_of_stock_words": [
-        "Out of Stock",
-        "Sold Out",
-        "Coming Soon"
-      ]
-    },
-    {
-      "name": "Costco 电子游戏分类",
-      "url": "https://www.costco.com/video-games.html",
-      "match_text": "Zelda",
-      "in_stock_words": [
-        "Add to Cart"
-      ],
-      "out_of_stock_words": [
-        "Out of Stock",
-        "Sold Out",
-        "Coming Soon"
-      ]
-    }
-  ]
+  "pages": [
+    "https://www.costco.com/nintendo.html",
+    "https://www.costco.com/nintendo-switch.html",
+    "https://www.costco.com/video-games.html"
+  ],
+  "must_include": ["zelda", "switch 2"]
 }

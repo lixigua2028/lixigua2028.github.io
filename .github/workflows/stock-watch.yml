@@ -1,4 +1,4 @@
-name: Switch 2 塞尔达限定机监控
+name: Costco 塞尔达限定机上架提醒
 
 on:
   schedule:
@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: 安装浏览器
+        run: pip install playwright==1.48.0 && python -m playwright install --with-deps chromium
       - name: 检查
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
