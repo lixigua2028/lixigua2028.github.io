@@ -1,0 +1,14 @@
+{
+  "news_query": "\"Switch 2\" Zelda edition bundle",
+  "news_must_include": ["zelda", "switch 2"],
+  "news_any_of": ["edition", "bundle", "limited", "preorder", "pre-order", "限定"],
+  "products": [
+    {
+      "name": "Nintendo 官网 - Switch 2 主机列表",
+      "url": "https://www.nintendo.com/us/store/hardware/",
+      "match_text": "Zelda",
+      "in_stock_words": ["Add to cart", "Pre-order now"],
+      "out_of_stock_words": ["Sold out", "Out of stock", "Coming soon", "Not available"]
+    }
+  ]
+}
