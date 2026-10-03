@@ -13,7 +13,9 @@ STATE_FILE = HERE / "state.json"
 
 def matches(name, cfg):
     low = name.lower()
-    return all(w.lower() in low for w in cfg["must_include"])
+    return (all(w in low for w in cfg["must_include"])
+            and any(w in low for w in cfg["any_of"])
+            and not any(w in low for w in cfg["exclude"]))
 
 
 def page_products(page, url):

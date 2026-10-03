@@ -4,5 +4,7 @@
     "https://www.costco.com/nintendo-switch.html",
     "https://www.costco.com/video-games.html"
   ],
-  "must_include": ["zelda", "switch 2"]
+  "must_include": ["zelda", "switch 2"],
+  "any_of": ["console", "bundle", "system", "anniversary", "special edition", "limited"],
+  "exclude": ["digital code", "game only"]
 }
