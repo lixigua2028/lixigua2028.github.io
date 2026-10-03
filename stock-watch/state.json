@@ -34,6 +34,8 @@
     "https://news.google.com/rss/articles/CBMigwFBVV95cUxQMWJCMWRxRjYyclVhSDNnenZMTEItR0xnd3VoakkzMGQxWVpMb2tTQTgxSGx6eTRHWkEzMXZxcUF1THBpZGtwVUdHOHpHaUxFQThadk9tN0NLVURLUTEzci03Vm5mdmo2N05FQzJKTkw3QWlWaUhpWkZvZmV1c2dSSkVwQQ?oc=5"
   ],
   "stock": {
-    "https://www.costco.com/CatalogSearch?dept=All&keyword=nintendo+switch+2+zelda": "not_listed"
+    "https://www.costco.com/CatalogSearch?dept=All&keyword=nintendo+switch+2+zelda": "not_listed",
+    "https://www.costco.com/nintendo.html": "not_listed",
+    "https://www.costco.com/nintendo-switch.html": "not_listed"
   }
 }
