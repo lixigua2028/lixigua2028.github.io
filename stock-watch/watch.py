@@ -1,13 +1,11 @@
-"""Switch 2 塞尔达限定机监控：查新闻 + 查商品页，有新消息就发邮件。"""
+"""Switch 2 塞尔达限定机监控：查新闻 + 查商品页，有新消息就开 issue 通知。"""
 import json
 import os
 import re
-import smtplib
 import sys
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from email.mime.text import MIMEText
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -54,20 +52,21 @@ def stock_status(product, html):
     return "unknown"
 
 
-def send_email(subject, body):
-    user = os.environ.get("SMTP_USER")
-    password = os.environ.get("SMTP_PASSWORD")
-    to = os.environ.get("MAIL_TO") or user
-    if not (user and password):
-        print("未配置邮箱，只打印：\n" + subject + "\n" + body)
+def notify(title, body):
+    """在仓库里开一个 issue。GitHub 会自动给仓库主人发邮件和 App 推送。"""
+    token = os.environ.get("GITHUB_TOKEN")
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not (token and repo):
+        print("不在 GitHub Actions 里，只打印：\n" + title + "\n" + body)
         return
-    msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"], msg["From"], msg["To"] = subject, user, to
-    host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
-    with smtplib.SMTP_SSL(host, 465, timeout=30) as s:
-        s.login(user, password)
-        s.send_message(msg)
-    print("已发邮件：" + subject)
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/issues",
+        data=json.dumps({"title": title, "body": body}).encode(),
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        print("已发通知：" + json.loads(resp.read())["html_url"])
 
 
 def main():
@@ -100,7 +99,7 @@ def main():
     state["seen_news"] = state["seen_news"][-300:]
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2))
     if alerts:
-        send_email(f"Switch 2 塞尔达限定机：{len(alerts)} 条新消息", "\n\n".join(alerts))
+        notify(f"Switch 2 塞尔达限定机：{len(alerts)} 条新消息", "\n\n".join(alerts) + "\n\n@" + os.environ.get("GITHUB_REPOSITORY_OWNER", ""))
     else:
         print("没有新消息")
 
