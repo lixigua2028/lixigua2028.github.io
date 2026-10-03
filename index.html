@@ -4,51 +4,76 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>西瓜的小站</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500&display=swap">
 <style>
-  :root { --bg:#fbfaf7; --fg:#222; --muted:#666; --card:#fff; --line:#e6e2da; --accent:#2f8f5b; --red:#e0524f; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#16181a; --fg:#eee; --muted:#9a9a9a; --card:#1f2224; --line:#2e3235; --accent:#5cc28a; --red:#ff6b67; }
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.75 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
-  main { max-width:680px; margin:0 auto; padding:56px 16px 80px; }
-  .logo { font-size:56px; line-height:1; }
-  h1 { font-size:32px; margin:16px 0 4px; }
-  .sub { color:var(--muted); margin:0 0 40px; }
-  h2 { font-size:18px; margin:40px 0 12px; color:var(--accent); }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:12px; }
-  .card b { color:var(--red); }
-  ul { padding-left:20px; margin:0; }
-  li { margin:6px 0; }
-  .tags span { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:2px 12px; margin:0 6px 8px 0; font-size:14px; }
-  footer { margin-top:56px; color:var(--muted); font-size:14px; border-top:1px solid var(--line); padding-top:16px; }
+/* Layout: single narrow column, a watermelon-slice band as the one bold moment */
+:root {
+  --bg:#f4f8f3; --surface:#ffffff; --fg:#1d2a22; --muted:#5d6e63; --line:#d6e2d8;
+  --rind:#2e7d4f; --flesh:#e2474b; --seed:#1d2a22;
+  --display:"Noto Serif SC", "Songti SC", serif;
+  --body:"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#121915; --surface:#1a231d; --fg:#e8efe9; --muted:#9aaa9f; --line:#2b3a30;
+  --rind:#5cbf85; --flesh:#ff6f6f; --seed:#e8efe9; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#121915; --surface:#1a231d; --fg:#e8efe9; --muted:#9aaa9f; --line:#2b3a30;
+  --rind:#5cbf85; --flesh:#ff6f6f; --seed:#e8efe9; color-scheme:dark }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.8 var(--body); }
+main { max-width:640px; margin:0 auto; padding-inline:16px; padding-block:56px 72px; display:grid; gap:40px; }
+.slice { height:14px; border-radius:0 0 999px 999px; background:linear-gradient(var(--flesh) 0 70%, var(--rind) 70%); }
+h1 { font:900 clamp(36px,9vw,56px)/1.15 var(--display); margin:0; text-wrap:balance; }
+h1 span { color:var(--flesh); }
+.sub { color:var(--muted); margin:8px 0 0; }
+h2 { font:700 20px/1.4 var(--display); margin:0 0 14px; color:var(--rind); }
+.traits { display:grid; gap:18px; }
+.trait { display:grid; grid-template-columns:10px 1fr; gap:14px; }
+.trait::before { content:""; width:8px; height:12px; margin-top:9px; border-radius:50%; background:var(--seed); transform:rotate(-20deg); }
+.trait b { display:block; font-weight:500; }
+.trait p { margin:0; color:var(--muted); min-width:0; }
+.tags { display:flex; flex-wrap:wrap; gap:8px; }
+.tags span { border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:2px 14px; font-size:14px; }
+.note { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 20px; }
+.note ul { margin:0; padding-left:20px; color:var(--muted); }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:16px; }
 </style>
 </head>
 <body>
+
 <main>
-  <div class="logo">🍉</div>
-  <h1>西瓜的小站</h1>
-  <p class="sub">一个由 Claude 写的、关于“西瓜”的第一印象。</p>
+  <header>
+    <div class="slice" aria-hidden="true"></div>
+    <h1 style="margin-top:28px">西瓜的<span>小站</span></h1>
+    <p class="sub">Claude 根据几句对话，写下的对“西瓜”的第一印象。</p>
+  </header>
 
-  <h2>我看到的你</h2>
-  <div class="card"><b>好奇，先问再动手。</b>拿到一份新额度，你先问“这能做什么”，再说“看看仓库有啥”。这是个好习惯：先弄清楚手里的工具，再决定怎么用。</div>
-  <div class="card"><b>重视隐私。</b>你想要一个“关于自己”的网页，却特意说明不要暴露隐私。在这个什么都想上网的年代，这种分寸感很难得。</div>
-  <div class="card"><b>敢从空白开始。</b>你的仓库连一个文件都没有，名字也只是一个“-”。你没有先去琢磨怎么起名，而是直接开始做。</div>
-  <div class="card"><b>愿意交出一点主动权。</b>“描述你对我的看法”这个请求很有意思。你没有让我照稿写，而是想听一个外部视角怎么说。</div>
+  <section>
+    <h2>我看到的你</h2>
+    <div class="traits">
+      <div class="trait"><div><b>好奇，先问再动手</b><p>拿到一份新额度，先问“这能做什么”，再说“看看仓库有啥”。先弄清楚手里的工具，再决定怎么用。</p></div></div>
+      <div class="trait"><div><b>重视隐私</b><p>想要一个关于自己的网页，却特意说明不要暴露隐私。这种分寸感很难得。</p></div></div>
+      <div class="trait"><div><b>敢从空白开始</b><p>仓库一个文件都没有，名字只是一个“-”。你没有纠结起名，直接开始做。</p></div></div>
+      <div class="trait"><div><b>愿意听外部视角</b><p>你让我写对你的看法，而不是照稿写。想知道别人眼中的自己，需要一点开放。</p></div></div>
+      <div class="trait"><div><b>一步一步往前推</b><p>做完网页，马上问怎么上线；上线前，又想弄懂云端和桌面的区别。每一步都在问“然后呢”。</p></div></div>
+    </div>
+  </section>
 
-  <h2>关键词</h2>
-  <div class="tags">
-    <span>好奇心</span><span>务实</span><span>注重隐私</span><span>中文用户</span><span>新手友好的探索者</span><span>🍉 爱好者（大概）</span>
-  </div>
+  <section>
+    <h2>关键词</h2>
+    <div class="tags"><span>好奇心</span><span>务实</span><span>注重隐私</span><span>探索者</span><span>爱追问</span><span>大概爱吃西瓜</span></div>
+  </section>
 
-  <h2>坦白说</h2>
-  <ul>
-    <li>我只认识了你几句话，上面全是根据对话做的推测，不是定论。</li>
-    <li>你的名字、长相、住在哪、做什么工作，我都不知道，也没有写进来。</li>
-    <li>这个页面以后可以由你自己慢慢补充，它本来就该属于你。</li>
-  </ul>
+  <section class="note">
+    <h2>说明</h2>
+    <ul>
+      <li>我只认识了你几句话，上面都是推测，不是定论。</li>
+      <li>你的姓名、长相、住址、工作，我都不知道，也没有写进来。</li>
+      <li>这个页面以后可以由你自己慢慢补充。</li>
+    </ul>
+  </section>
 
-  <footer>Made with Claude Code · 第一个提交，从零开始。</footer>
+  <footer>Made with Claude Code · 2026 年 10 月</footer>
 </main>
 </body>
 </html>
